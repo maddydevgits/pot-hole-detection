@@ -1,0 +1,154 @@
+<!-- templates/index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pothole Detection</title>
+    
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(sendPosition);
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        function sendPosition(position) {
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+            
+            // Send latitude to Python server
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/receive_location", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    console.log("Location sent successfully");
+                }
+            };
+            xhr.send(JSON.stringify({latitude: latitude,longitude:longitude}));
+        }
+
+    </script>
+    <style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #2e92cc;
+        margin: 0;
+        padding: 0;
+        /* display: flex; */
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .form {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        width: 2000px;
+        margin-top:100px;
+        margin-left:200px;
+        text-align: center;
+    }
+
+    h2 {
+        color: #2ea4cc;
+    }
+
+    label {
+        display: block;
+        margin: 10px 0;
+        color: #555;
+    }
+
+    input {
+        width: calc(100% - 16px);
+        padding: 8px;
+        margin-bottom: 16px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    input[type="submit"] {
+        background-color: #2e9fcc;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    input[type="submit"]:hover {
+        background-color: #278eae;
+    }
+
+    p {
+        color: #777;
+        margin-top: 10px;
+    }
+
+    a {
+        color: #2e9dcc;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }</style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">Pothole Detection</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/adashboard">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/updatepothole">Update Pothole</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav> 
+    <div class="form col-sm-4">
+        <h3>Update Pot Holes</h3>
+        <form action="/updatepotholeform" method="POST">
+            <div class="form-group">
+                <label for="sel1">Select Pot Hole:</label>
+                <select class="form-control" id="potholeid" name='potholeid' required>
+                    {%for i in range(0, l)%}
+                    <option value={{dashboard_data[i][0]}}>{{dashboard_data[i][0]}}</option>
+                    {%endfor%}
+                </select>
+                <label>Select Status:</label>
+                <select class="form-control" id="potholestatus" name='potholestatus'>
+                    <option value="1">Complaint Accepted</option>
+                    <option value="2">In Processing</option>
+                    <option value="3">Complaint Closed</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Update PotHole</button> <br/>
+            <span style="color:blue">{{result}}</span>
+        </form>
+    </div>
+</body>
+</html>

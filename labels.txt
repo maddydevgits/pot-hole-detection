@@ -1,0 +1,3 @@
+0 Plain road
+1 small potholes
+2 large and continous potholes
